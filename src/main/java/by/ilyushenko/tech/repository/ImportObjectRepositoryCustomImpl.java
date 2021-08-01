@@ -57,5 +57,6 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
             em.persist(importObjects.get(i));
         }
         importObjects.clear();
+        System.gc();
     }
 }
