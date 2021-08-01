@@ -2,13 +2,14 @@ package by.ilyushenko.tech.service;
 
 import by.ilyushenko.tech.model.ImportObject;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface ImportObjectService {
 
-    List<ImportObject> findImportObject(int offset, int limit, String filter);
+    List<ImportObject> findImportObject(final int offset, final int limit, final String filter);
 
-    List<ImportObject> saveImportObjects(List<ImportObject> importObjects);
+    void saveImportObjects(List<ImportObject> importObjects) throws IOException, SQLException;
 
-    ImportObject saveImportObject(ImportObject importObject);
 }

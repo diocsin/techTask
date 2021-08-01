@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -18,8 +19,11 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
     @PersistenceContext
     private EntityManager em;
 
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int BATCH_SIZE;
+
     @Override
-    public List<ImportObject> getFilterImportObjectPage(int offset, int limit, String filter) {
+    public List<ImportObject> getFilterImportObjectPage(final int offset, final int limit, final String filter) {
         Session session = em.unwrap(Session.class);
         Criteria criteria = session.createCriteria(ImportObject.class);
         Disjunction disjunction = Restrictions.or(
@@ -35,11 +39,23 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
     }
 
     @Override
-    public List<ImportObject> getImportObjectPage(int offset, int limit) {
+    public List<ImportObject> getImportObjectPage(final int offset, final int limit) {
         Session session = em.unwrap(Session.class);
         Criteria criteria = session.createCriteria(ImportObject.class);
         criteria.setFirstResult(offset);
         criteria.setMaxResults(limit);
         return criteria.list();
+    }
+
+    @Override
+    public void saveImportObjects(final List<ImportObject> importObjects) {
+        for (int i = 0; i < importObjects.size(); i++) {
+            if (i % BATCH_SIZE == 0) {
+                em.flush();
+                em.clear();
+            }
+            em.persist(importObjects.get(i));
+        }
+        importObjects.clear();
     }
 }

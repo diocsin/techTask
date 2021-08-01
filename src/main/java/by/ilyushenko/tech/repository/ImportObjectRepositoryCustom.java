@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface ImportObjectRepositoryCustom {
 
-    List<ImportObject> getFilterImportObjectPage(int offset, int limit, String filter);
+    List<ImportObject> getFilterImportObjectPage(final int offset, final int limit, final String filter);
 
-    List<ImportObject> getImportObjectPage(int offset, int limit);
+    List<ImportObject> getImportObjectPage(final int offset, final int limit);
+
+    void saveImportObjects(final List<ImportObject> importObjects);
 }
