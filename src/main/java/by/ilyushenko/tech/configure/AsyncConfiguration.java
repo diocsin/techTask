@@ -1,4 +1,4 @@
-package by.ilyushenko.tech;
+package by.ilyushenko.tech.configure;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
