@@ -30,7 +30,7 @@ public class ImportObjectServiceImpl implements ImportObjectService {
     @Async
     @Transactional
     @Override
-    public void saveImportObjects(List<ImportObject> importObjects) {
+    public void saveImportObjects(final List<ImportObject> importObjects) {
         repository.saveImportObjects(importObjects);
     }
 }

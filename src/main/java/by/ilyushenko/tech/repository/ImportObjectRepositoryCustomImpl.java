@@ -25,9 +25,9 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
 
     @Override
     public List<ImportObject> getFilterImportObjectPage(final int offset, final int limit, final String filter) {
-        Session session = em.unwrap(Session.class);
-        Criteria criteria = session.createCriteria(ImportObject.class);
-        Disjunction disjunction = Restrictions.or(
+        final Session session = em.unwrap(Session.class);
+        final Criteria criteria = session.createCriteria(ImportObject.class);
+        final Disjunction disjunction = Restrictions.or(
                 Restrictions.ilike("eventName", filter, MatchMode.ANYWHERE),
                 Restrictions.ilike("formName", filter, MatchMode.ANYWHERE),
                 Restrictions.ilike("variableName", filter, MatchMode.ANYWHERE),
@@ -42,8 +42,8 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
 
     @Override
     public List<ImportObject> getImportObjectPage(final int offset, final int limit) {
-        Session session = em.unwrap(Session.class);
-        Criteria criteria = session.createCriteria(ImportObject.class);
+        final Session session = em.unwrap(Session.class);
+        final Criteria criteria = session.createCriteria(ImportObject.class);
         criteria.setFirstResult(offset);
         criteria.setMaxResults(limit);
         criteria.addOrder(Order.asc("pid"));

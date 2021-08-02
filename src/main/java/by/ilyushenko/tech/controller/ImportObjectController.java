@@ -16,7 +16,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ImportObjectController {
 
-    private ImportObjectService importObjectService;
+    private final ImportObjectService importObjectService;
 
     @Autowired
     public ImportObjectController(ImportObjectService service) {
@@ -25,9 +25,9 @@ public class ImportObjectController {
 
     @GetMapping("/importobjects")
     public ResponseEntity<?> findImportObject(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "limit", defaultValue = "100") int limit,
-            @RequestParam(value = "filter", required = false) String filter) {
+            @RequestParam(value = "offset", defaultValue = "0") final int offset,
+            @RequestParam(value = "limit", defaultValue = "100") final int limit,
+            @RequestParam(value = "filter", required = false) final String filter) {
         try {
             final List<ImportObject> importObjects = importObjectService.findImportObject(offset, limit, filter);
             return ResponseEntity.ok(importObjects);
