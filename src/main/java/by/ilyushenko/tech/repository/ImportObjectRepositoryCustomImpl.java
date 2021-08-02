@@ -5,6 +5,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,7 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
         criteria.setFirstResult(offset);
         criteria.setMaxResults(limit);
         criteria.add(disjunction);
+        criteria.addOrder(Order.asc("pid"));
         return criteria.list();
     }
 
@@ -44,6 +46,7 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
         Criteria criteria = session.createCriteria(ImportObject.class);
         criteria.setFirstResult(offset);
         criteria.setMaxResults(limit);
+        criteria.addOrder(Order.asc("pid"));
         return criteria.list();
     }
 
