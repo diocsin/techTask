@@ -3,6 +3,7 @@ package by.ilyushenko.tech.controller;
 import by.ilyushenko.tech.model.ImportObject;
 import by.ilyushenko.tech.service.ImportObjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,20 +16,23 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ImportObjectController {
 
-    private ImportObjectService service;
+    private ImportObjectService importObjectService;
 
     @Autowired
     public ImportObjectController(ImportObjectService service) {
-        this.service = service;
+        this.importObjectService = service;
     }
 
     @GetMapping("/importobjects")
-    public ResponseEntity<List<ImportObject>> findImportObject(
+    public ResponseEntity<?> findImportObject(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "100") int limit,
             @RequestParam(value = "filter", required = false) String filter) {
-        List<ImportObject> importObjects;
-        importObjects = service.findImportObject(offset, limit, filter);
-        return ResponseEntity.ok(importObjects);
+        try {
+            final List<ImportObject> importObjects = importObjectService.findImportObject(offset, limit, filter);
+            return ResponseEntity.ok(importObjects);
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred while fetching data", HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 }
