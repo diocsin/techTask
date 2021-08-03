@@ -30,6 +30,9 @@ public class ImportObjectController {
             @RequestParam(value = "filter", required = false) final String filter) {
         try {
             final List<ImportObject> importObjects = importObjectService.findImportObject(offset, limit, filter);
+            System.out.println(
+                    String.format("GET: params:[offset - %d, limit - %d, filter - %s], return %d objects",
+                            offset, limit, filter, importObjects.size()));
             return ResponseEntity.ok(importObjects);
         } catch (Exception e) {
             return new ResponseEntity<>("An error occurred while fetching data", HttpStatus.NOT_ACCEPTABLE);

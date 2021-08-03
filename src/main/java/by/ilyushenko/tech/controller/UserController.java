@@ -40,6 +40,9 @@ public class UserController {
             final String jwt = jwtTokenUtil.generateToken(userDetails);
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+            System.out.println(
+                    String.format("Authentication done! Username - %s, password - %s",
+                            authenticationRequest.getUsername(), authenticationRequest.getPassword()));
             return ResponseEntity.ok(new AuthenticationResponse(jwt));
         } catch (BadCredentialsException e) {
             System.err.println("Incorrect username or password");
