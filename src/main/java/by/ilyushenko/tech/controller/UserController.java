@@ -48,8 +48,8 @@ public class UserController {
             System.err.println("Incorrect username or password");
             return new ResponseEntity<>("Incorrect username or password", HttpStatus.FORBIDDEN);
         } catch (UsernameNotFoundException e) {
-            System.err.println("User not found");
-            return new ResponseEntity<>("User not found", HttpStatus.FORBIDDEN);
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 }
