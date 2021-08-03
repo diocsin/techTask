@@ -1,6 +1,7 @@
 package by.ilyushenko.tech.processor;
 
-import by.ilyushenko.tech.exception.ServiceException;
+import by.ilyushenko.tech.exception.ExportException;
+import by.ilyushenko.tech.exception.ImportException;
 import by.ilyushenko.tech.model.ImportObject;
 import by.ilyushenko.tech.service.ImportObjectService;
 import by.ilyushenko.tech.util.ConverterCsv;
@@ -59,14 +60,14 @@ public class FileProcessor {
         }
     }
 
-    private void moveFile(final String path) throws ServiceException {
+    private void moveFile(final String path) throws ImportException {
         Path source = Paths.get(path);
         Path pathProcess = Paths.get(pathForProcess);
         try {
             //TODO костыль для работы нескольких экземпляров приложения.
             Files.move(source, pathProcess.resolve(source.getFileName()), StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception e) {
-            throw new ServiceException(String.format("The file - %s does not exist or has already been moved", source.getFileName()));
+            throw new ImportException(String.format("The file - %s does not exist or has already been moved", source.getFileName()));
         }
     }
 
@@ -86,14 +87,14 @@ public class FileProcessor {
                 }
             }
             reader.endArray();
-            System.out.println("Loading done");
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
+            System.out.println("Loading done");
         } catch (PersistenceException | DataAccessException e) {
-            throw new ServiceException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
+            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
         } catch (IOException e) {
-            throw new ServiceException(String.format("Error occurred while reading the file - %s", pathFileForSave));
+            throw new ImportException(String.format("Error occurred while reading the file - %s", pathFileForSave));
         }
 
     }
@@ -115,14 +116,14 @@ public class FileProcessor {
                 }
             }
             fileReader.close();
-            System.out.println("Loading done");
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
+            System.out.println("Loading done");
         } catch (PersistenceException | DataAccessException e) {
-            throw new ServiceException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
+            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
         } catch (IOException e) {
-            throw new ServiceException(String.format("Error occurred while reading the file - %s", pathFileForSave));
+            throw new ImportException(String.format("Error occurred while reading the file - %s", pathFileForSave));
         }
 
     }

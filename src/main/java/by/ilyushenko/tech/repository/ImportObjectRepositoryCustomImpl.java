@@ -53,12 +53,14 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
     @Override
     public void saveImportObjects(final List<ImportObject> importObjects) {
         for (int i = 0; i < importObjects.size(); i++) {
-            if (i % BATCH_SIZE == 0) {
+            if (i > 0 && i % BATCH_SIZE == 0) {
                 em.flush();
                 em.clear();
             }
             em.persist(importObjects.get(i));
         }
+        em.flush();
+        em.clear();
         importObjects.clear();
         System.gc();
     }
