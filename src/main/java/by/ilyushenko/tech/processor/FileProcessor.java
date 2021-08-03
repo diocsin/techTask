@@ -9,7 +9,7 @@ import com.google.gson.stream.JsonReader;
 import com.opencsv.bean.CsvToBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +90,7 @@ public class FileProcessor {
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataAccessException e) {
             throw new ServiceException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
         } catch (IOException e) {
             throw new ServiceException(String.format("Error occurred while reading the file - %s", pathFileForSave));
@@ -119,7 +119,7 @@ public class FileProcessor {
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataAccessException e) {
             throw new ServiceException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
         } catch (IOException e) {
             throw new ServiceException(String.format("Error occurred while reading the file - %s", pathFileForSave));
