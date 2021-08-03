@@ -1,5 +1,6 @@
 package by.ilyushenko.tech.configure.security;
 
+import by.ilyushenko.tech.exception.AuthorizationException;
 import by.ilyushenko.tech.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,15 +40,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             jwt = header.substring(7);
-            userName = jwtTokenUtil.extractUsername(jwt);
+            try {
+                userName = jwtTokenUtil.extractUsername(jwt);
+            } catch (AuthorizationException e) {
+                System.err.println(e.getMessage());
+            }
         }
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService
                     .loadUserByUsername(userName);
-            if (jwtTokenUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(token);
+            try {
+                if (jwtTokenUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(token);
+                }
+            } catch (AuthorizationException e) {
+                System.err.println(e.getMessage());
             }
         }
         chain.doFilter(request, response);
