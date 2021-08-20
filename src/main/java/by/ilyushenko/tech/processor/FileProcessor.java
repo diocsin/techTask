@@ -4,10 +4,6 @@ import by.ilyushenko.tech.exception.ExportException;
 import by.ilyushenko.tech.exception.ImportException;
 import by.ilyushenko.tech.model.ImportObject;
 import by.ilyushenko.tech.service.ImportObjectService;
-import by.ilyushenko.tech.util.ConverterCsv;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-import com.opencsv.bean.CsvToBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
@@ -16,13 +12,11 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.PersistenceException;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -50,11 +44,13 @@ public class FileProcessor {
         Path pathProcessFile = Paths.get(pathForProcess + "/" + fileName);
         try {
             moveFile(content);
+            MyReader<ImportObject> reader = null;
             if (Pattern.matches(regularCsv, fileName)) {
-                importCsv(pathProcessFile);
+                reader = new MyCsvReader<>(pathForProcess + "/" + fileName, ImportObject.class);
             } else if (Pattern.matches(regularJson, fileName)) {
-                importJson(pathProcessFile);
+                reader = new MyJsonReader<>(pathForProcess + "/" + fileName, ImportObject.class);
             }
+            generalImport(reader);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -71,43 +67,14 @@ public class FileProcessor {
         }
     }
 
-    private void importJson(final Path pathFileForSave) throws Exception {
-        List<ImportObject> importObjectList = new ArrayList<>(ARRAY_SIZE);
-        try (Reader fileReader = Files.newBufferedReader(pathFileForSave);
-             JsonReader reader = new JsonReader(fileReader)) {
-            reader.beginArray();
-            int i = 0;
-            while (reader.hasNext()) {
-                importObjectList.add(new Gson().fromJson(reader, ImportObject.class));
-                i++;
-                if (i == ARRAY_SIZE) {
-                    importObjectService.saveImportObjects(importObjectList);
-                    i = 0;
-                    importObjectList = new ArrayList<>(ARRAY_SIZE);
-                }
-            }
-            reader.endArray();
-            if (i != 0) {
-                importObjectService.saveImportObjects(importObjectList);
-            }
-            System.out.println("Loading done");
-        } catch (PersistenceException | DataAccessException e) {
-            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
-        } catch (IOException e) {
-            throw new ImportException(String.format("Error occurred while reading the file - %s", pathFileForSave));
-        }
-
-    }
-
-    private void importCsv(final Path pathFileForSave) throws Exception {
+    private void generalImport(MyReader<ImportObject> reader) throws Exception {
         List<ImportObject> importObjectList = new ArrayList<>(ARRAY_SIZE);
         try {
-            Reader fileReader = Files.newBufferedReader(pathFileForSave);
-            CsvToBean<ImportObject> csvToBean = ConverterCsv.getCsvBean(ImportObject.class, fileReader);
-            Iterator<ImportObject> iterator = csvToBean.iterator();
+            reader.readFile();
             int i = 0;
-            while (iterator.hasNext()) {
-                importObjectList.add(iterator.next());
+            while (reader.hasNext()) {
+                ImportObject importObject = reader.doBean();
+                importObjectList.add(importObject);
                 i++;
                 if (i == ARRAY_SIZE) {
                     importObjectService.saveImportObjects(importObjectList);
@@ -115,16 +82,17 @@ public class FileProcessor {
                     importObjectList = new ArrayList<>(ARRAY_SIZE);
                 }
             }
-            fileReader.close();
+            reader.closeRead();
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
             System.out.println("Loading done");
         } catch (PersistenceException | DataAccessException e) {
-            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", pathFileForSave));
+            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", reader.getPathStr()));
         } catch (IOException e) {
-            throw new ImportException(String.format("Error occurred while reading the file - %s", pathFileForSave));
+            throw new ImportException(String.format("Error occurred while reading the file - %s", reader.getPathStr()));
         }
 
     }
+
 }
