@@ -45,13 +45,13 @@ public class FileProcessor {
         String filePath = pathForProcess + "/" + fileName;
         try {
             moveFile(content);
-            Optional<MyReader<ImportObject>> reader = Optional.empty();
+            MyReader<ImportObject> reader = null;
             if (Pattern.matches(regularCsv, fileName)) {
-                reader = Optional.of(new MyCsvReader<>(filePath, ImportObject.class));
+                reader = new MyCsvReader<>(filePath, ImportObject.class);
             } else if (Pattern.matches(regularJson, fileName)) {
-                reader = Optional.of(new MyJsonReader<>(filePath, ImportObject.class));
+                reader = new MyJsonReader<>(filePath, ImportObject.class);
             }
-            generalImport(reader);
+            generalImport(Optional.ofNullable(reader));
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
