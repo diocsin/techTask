@@ -12,8 +12,8 @@ class MyCsvReader<T> extends MyReader<T> {
 
     private Iterator<T> iterator;
 
-    MyCsvReader(String pathStr, Class<T> clazz) {
-        super(pathStr, clazz);
+    MyCsvReader(String filePath, Class<T> clazz) {
+        super(filePath, clazz);
     }
 
     @Override

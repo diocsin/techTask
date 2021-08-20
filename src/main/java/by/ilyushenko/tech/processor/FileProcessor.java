@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Component
@@ -41,14 +42,14 @@ public class FileProcessor {
         String regularJson = "^.*\\.json$";
         String content = msg.getPayload();
         System.out.println(String.format(MSG, fileName, content));
-        Path pathProcessFile = Paths.get(pathForProcess + "/" + fileName);
+        String filePath = pathForProcess + "/" + fileName;
         try {
             moveFile(content);
-            MyReader<ImportObject> reader = null;
+            Optional<MyReader<ImportObject>> reader = Optional.empty();
             if (Pattern.matches(regularCsv, fileName)) {
-                reader = new MyCsvReader<>(pathForProcess + "/" + fileName, ImportObject.class);
+                reader = Optional.of(new MyCsvReader<>(filePath, ImportObject.class));
             } else if (Pattern.matches(regularJson, fileName)) {
-                reader = new MyJsonReader<>(pathForProcess + "/" + fileName, ImportObject.class);
+                reader = Optional.of(new MyJsonReader<>(filePath, ImportObject.class));
             }
             generalImport(reader);
         } catch (Exception e) {
@@ -67,7 +68,8 @@ public class FileProcessor {
         }
     }
 
-    private void generalImport(MyReader<ImportObject> reader) throws Exception {
+    private void generalImport(Optional<MyReader<ImportObject>> optReader) throws Exception {
+        MyReader<ImportObject> reader = optReader.orElseThrow(() -> new ImportException("Format file incorrect"));
         List<ImportObject> importObjectList = new ArrayList<>(ARRAY_SIZE);
         try {
             reader.readFile();
@@ -88,9 +90,9 @@ public class FileProcessor {
             }
             System.out.println("Loading done");
         } catch (PersistenceException | DataAccessException e) {
-            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", reader.getPathStr()));
+            throw new ExportException(String.format("Error occurred while writing the file - %s to DB", reader.getFilePath()));
         } catch (IOException e) {
-            throw new ImportException(String.format("Error occurred while reading the file - %s", reader.getPathStr()));
+            throw new ImportException(String.format("Error occurred while reading the file - %s", reader.getFilePath()));
         }
 
     }

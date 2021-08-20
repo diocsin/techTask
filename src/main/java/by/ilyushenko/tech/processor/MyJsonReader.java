@@ -9,8 +9,8 @@ class MyJsonReader<T> extends MyReader<T> {
 
     private JsonReader reader;
 
-    MyJsonReader(String pathStr, Class<T> clazz) {
-        super(pathStr, clazz);
+    MyJsonReader(String filePath, Class<T> clazz) {
+        super(filePath, clazz);
     }
 
     @Override
