@@ -37,25 +37,31 @@ public class FileProcessor {
     }
 
     public void process(Message<String> msg) {
-        String fileName = (String) msg.getHeaders().get(HEADER_FILE_NAME);
-        String regularCsv = "^.*\\.csv$";
-        String regularJson = "^.*\\.json$";
-        String content = msg.getPayload();
+        final String fileName = (String) msg.getHeaders().get(HEADER_FILE_NAME);
+        final String content = msg.getPayload();
         System.out.println(String.format(MSG, fileName, content));
-        String filePath = pathForProcess + "/" + fileName;
         try {
             moveFile(content);
-            MyReader<ImportObject> reader = null;
-            if (Pattern.matches(regularCsv, fileName)) {
-                reader = new MyCsvReader<>(filePath, ImportObject.class);
-            } else if (Pattern.matches(regularJson, fileName)) {
-                reader = new MyJsonReader<>(filePath, ImportObject.class);
-            }
+            MyReader<ImportObject> reader = createReader(fileName);
             generalImport(Optional.ofNullable(reader));
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
+
+    private MyReader<ImportObject> createReader(String fileName) {
+        final String regularCsv = "^.*\\.csv$";
+        final String regularJson = "^.*\\.json$";
+        final String filePath = pathForProcess + "/" + fileName;
+        MyReader<ImportObject> reader = null;
+        if (Pattern.matches(regularCsv, fileName)) {
+            reader = new MyCsvReader<>(filePath, ImportObject.class);
+        } else if (Pattern.matches(regularJson, fileName)) {
+            reader = new MyJsonReader<>(filePath, ImportObject.class);
+        }
+        return reader;
+    }
+
 
     private void moveFile(final String path) throws ImportException {
         Path source = Paths.get(path);
