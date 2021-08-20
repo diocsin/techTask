@@ -89,7 +89,6 @@ public class FileProcessor {
                     importObjectList = new ArrayList<>(ARRAY_SIZE);
                 }
             }
-            reader.closeRead();
             if (i != 0) {
                 importObjectService.saveImportObjects(importObjectList);
             }
@@ -99,7 +98,8 @@ public class FileProcessor {
         } catch (IOException e) {
             throw new ImportException(String.format("Error occurred while reading the file - %s", reader.getFilePath()));
         }
-
+        finally {
+            reader.closeRead();
+        }
     }
-
 }

@@ -31,7 +31,7 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
         disjunction.getExpressions().add(criteria.like(root.get("formName"), "%" + filter + "%"));
         disjunction.getExpressions().add(criteria.like(root.get("variableName"), "%" + filter + "%"));
         disjunction.getExpressions().add(criteria.like(root.get("value"), "%" + filter + "%"));
-        cq.orderBy(criteria.asc(root.get("pid")));
+        cq.where(disjunction).orderBy(criteria.asc(root.get("pid")));
         return em.createQuery(cq).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 

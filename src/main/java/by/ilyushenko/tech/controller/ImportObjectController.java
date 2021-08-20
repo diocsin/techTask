@@ -31,7 +31,7 @@ public class ImportObjectController {
         try {
             final List<ImportObject> importObjects = importObjectService.findImportObject(offset, limit, filter);
             System.out.println(
-                    String.format("GET: params:[offset - %d, limit - %d, filter - %s], return %d objects",
+                    String.format("GET /importobjects: params:[offset - %d, limit - %d, filter - %s], return %d objects",
                             offset, limit, filter, importObjects.size()));
             return ResponseEntity.ok(importObjects);
         } catch (Exception e) {
