@@ -1,17 +1,15 @@
 package by.ilyushenko.tech.repository;
 
 import by.ilyushenko.tech.model.ImportObject;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
@@ -25,29 +23,25 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
 
     @Override
     public List<ImportObject> getFilterImportObjectPage(final int offset, final int limit, final String filter) {
-        final Session session = em.unwrap(Session.class);
-        final Criteria criteria = session.createCriteria(ImportObject.class);
-        final Disjunction disjunction = Restrictions.or(
-                Restrictions.ilike("eventName", filter, MatchMode.ANYWHERE),
-                Restrictions.ilike("formName", filter, MatchMode.ANYWHERE),
-                Restrictions.ilike("variableName", filter, MatchMode.ANYWHERE),
-                Restrictions.ilike("value", filter, MatchMode.ANYWHERE)
-        );
-        criteria.setFirstResult(offset);
-        criteria.setMaxResults(limit);
-        criteria.add(disjunction);
-        criteria.addOrder(Order.asc("pid"));
-        return criteria.list();
+        final CriteriaBuilder criteria = em.getCriteriaBuilder();
+        final CriteriaQuery<ImportObject> cq = criteria.createQuery(ImportObject.class);
+        final Root<ImportObject> root = cq.from(ImportObject.class);
+        final Predicate disjunction = criteria.disjunction();
+        disjunction.getExpressions().add(criteria.like(root.get("eventName"), "%" + filter + "%"));
+        disjunction.getExpressions().add(criteria.like(root.get("formName"), "%" + filter + "%"));
+        disjunction.getExpressions().add(criteria.like(root.get("variableName"), "%" + filter + "%"));
+        disjunction.getExpressions().add(criteria.like(root.get("value"), "%" + filter + "%"));
+        cq.orderBy(criteria.asc(root.get("pid")));
+        return em.createQuery(cq).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
     @Override
     public List<ImportObject> getImportObjectPage(final int offset, final int limit) {
-        final Session session = em.unwrap(Session.class);
-        final Criteria criteria = session.createCriteria(ImportObject.class);
-        criteria.setFirstResult(offset);
-        criteria.setMaxResults(limit);
-        criteria.addOrder(Order.asc("pid"));
-        return criteria.list();
+        final CriteriaBuilder criteria = em.getCriteriaBuilder();
+        final CriteriaQuery<ImportObject> cq = criteria.createQuery(ImportObject.class);
+        final Root<ImportObject> root = cq.from(ImportObject.class);
+        cq.orderBy(criteria.asc(root.get("pid")));
+        return em.createQuery(cq).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
     @Override
@@ -62,6 +56,5 @@ public class ImportObjectRepositoryCustomImpl implements ImportObjectRepositoryC
         em.flush();
         em.clear();
         importObjects.clear();
-        System.gc();
     }
 }

@@ -61,7 +61,6 @@ public class FileProcessor {
         Path source = Paths.get(path);
         Path pathProcess = Paths.get(pathForProcess);
         try {
-            //TODO костыль для работы нескольких экземпляров приложения.
             Files.move(source, pathProcess.resolve(source.getFileName()), StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception e) {
             throw new ImportException(String.format("The file - %s does not exist or has already been moved", source.getFileName()));
