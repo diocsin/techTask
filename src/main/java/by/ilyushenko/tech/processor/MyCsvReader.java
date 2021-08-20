@@ -1,7 +1,7 @@
 package by.ilyushenko.tech.processor;
 
-import by.ilyushenko.tech.util.ConverterCsv;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -18,7 +18,9 @@ class MyCsvReader<T> extends MyReader<T> {
 
     @Override
     void doSpecialClassReader() {
-        csvToBean = ConverterCsv.getCsvBean(clazz, fileReader);
+        csvToBean = new CsvToBeanBuilder<T>(fileReader)
+                .withType(clazz)
+                .build();
     }
 
     @Override
